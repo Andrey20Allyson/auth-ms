@@ -2,6 +2,7 @@ import express, { Request, Express, Router } from "express";
 import { ZodError, ZodType } from "zod";
 import { Container } from "./injection";
 import { BadRequestError, ServerResponse } from "./utils";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export type ControllerType = {};
 
@@ -55,7 +56,7 @@ export interface ServerConfig {
 export class Server {
   readonly app: Express;
   readonly config: ServerConfig;
-  
+
   constructor(config: Partial<ServerConfig> = {}) {
     const {
       onBoot = Server.createBootListener(this),
@@ -174,14 +175,6 @@ function initializeRoute(
 
       return res.status(200).send(ServerResponse.ok(await result));
     } catch (error) {
-      if (error instanceof BadRequestError) {
-        return res.status(400).send(ServerResponse.error(error.message));
-      }
-
-      if (error instanceof Error) {
-        return res.status(500).send(ServerResponse.error(error.message));
-      }
-
       return res.status(500).send(ServerResponse.error(error));
     }
   });
@@ -211,24 +204,16 @@ export class TypedRequest<
   check<CB = B, CQ extends QueryType = Q, CP extends ParamsType = P>(options: TypedRequestCheckOptions<CB, CQ, CP>): TypedRequest<CB, CQ, CP> {
     const { params, query, body } = options;
 
-    try {
-      const checkedParams = params ? params.parse(this.params) : this.params;
-      const checkedQuery = query ? query.parse(this.query) : this.query;
-      const checkedBody = body ? body.parse(this.body) : this.body;
+    const checkedParams = params ? params.parse(this.params) : this.params;
+    const checkedQuery = query ? query.parse(this.query) : this.query;
+    const checkedBody = body ? body.parse(this.body) : this.body;
 
-      return new TypedRequest(
-        checkedBody as CB,
-        checkedQuery as CQ,
-        checkedParams as CP,
-        this._request,
-      );
-    } catch (e) {
-      if (e instanceof ZodError) {
-        throw new BadRequestError(e.message);
-      }
-
-      throw e;
-    }
+    return new TypedRequest(
+      checkedBody as CB,
+      checkedQuery as CQ,
+      checkedParams as CP,
+      this._request,
+    );
   }
 
   request(): Readonly<Request> {
