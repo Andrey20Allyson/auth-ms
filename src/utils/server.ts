@@ -95,7 +95,7 @@ export class Server {
     }
   }
 
-  listen(callback?: () => void) {
+  listen() {
     const { host, port } = this.config;
 
     this.app.listen(port, host, this.config.onBoot);

@@ -1,19 +1,20 @@
 import { AccountService } from "../services/Account";
 import { Inject } from "../utils/injection";
 import { Controller, Route, TypedRequest } from "../utils/server";
+import { RequestBody } from "./Account.schemas";
 
 @Controller({ path: '/auth' })
 export class AccountController {
   @Inject(AccountService)
-  service!: AccountService;
+  readonly service!: AccountService;
 
   @Route({
     path: '/create',
     method: 'POST',
   })
-  createAccount(request: TypedRequest) {
-    // request.check({ body: RequestBody.createAccount });
+  async createAccount(request: TypedRequest) {
+    const { body } = request.check({ body: RequestBody.createAccount });
 
-    console.log(!!this.service);
+    return this.service.createAccount(body);
   }
 }
