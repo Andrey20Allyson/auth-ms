@@ -1,5 +1,5 @@
 import { AccountService } from "./Account";
 
-export const services = [
-  AccountService
+export const servicesConstructors = [
+  AccountService,
 ] as const;

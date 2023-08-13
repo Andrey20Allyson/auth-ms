@@ -1,5 +1,5 @@
+import { Inject } from "../container";
 import { AccountService } from "../services/Account";
-import { Inject } from "../utils/injection";
 import { Controller, Route, TypedRequest } from "../utils/server";
 import { RequestBody } from "./Account.schemas";
 

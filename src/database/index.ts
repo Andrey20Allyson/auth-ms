@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { Injectable } from "../utils/injection";
+import { Injectable } from "../container";
 
-@Injectable
+@Injectable()
 export class Database extends PrismaClient { }
