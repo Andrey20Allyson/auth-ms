@@ -27,46 +27,44 @@ export class DependencyConsumerStorage {
   addTo(Consumer: ClassType, field: string | symbol, Dependency: ClassType) {
     this.dependenciesFrom(Consumer).set(field, Dependency)
   }
-
-  inject(instance: object) {
-
-  }
 }
 
 export class Container {
-  dependencies: unknown[];
-  private _dependencySet: Set<unknown>;
+  private _dependencies: object[];
+  private _dependencySet: Set<object>;
   private _dependencyConsumerStorage: DependencyConsumerStorage;
 
   debug: boolean;
 
   constructor() {
-    this.dependencies = [];
+    this._dependencies = [];
     this._dependencySet = new Set();
 
     this._dependencyConsumerStorage = new DependencyConsumerStorage();
 
-    this.debug = false;
+    this.debug = true;
   }
 
-  register(...dependences: unknown[]) {
+  register(...dependences: object[]) {
     for (let dependency of dependences) {
       if (this._dependencySet.has(dependency)) continue;
 
-      this.dependencies.unshift(dependency);
+      if (this.debug) console.log(`[Dependencies]: Loaded ${dependency.constructor.name}`);
+
+      this._dependencies.unshift(dependency);
       this._dependencySet.add(dependency);
     }
   }
 
-  registerClass<P extends any[]>(Dependency: ClassType<unknown, P>, ...args: P) {
+  registerClass<P extends any[]>(Dependency: ClassType<object, P>, ...args: P) {
     const instance = this.create(Dependency, ...args);
 
     this.register(instance);
   }
 
-  remove(...dependences: unknown[]) {
-    this.dependencies = this.dependencies.filter(dep => !dependences.includes(dep));
-    this._dependencySet = new Set(this.dependencies);
+  remove(...dependences: object[]) {
+    this._dependencies = this._dependencies.filter(dep => !dependences.includes(dep));
+    this._dependencySet = new Set(this._dependencies);
   }
 
   create<T extends ClassType>(Consumer: T, ...args: ConstructorParameters<T>): InstanceType<T> {
@@ -81,14 +79,14 @@ export class Container {
 
       instance[key] = dependency;
 
-      if (this.debug) console.log(`Injected dependency '${key.toString()}: ${Dependency.name}' in ${instance !== null && instance !== undefined ? instance.constructor.name : null}`);
+      if (this.debug) console.log(`[Dependencies]: Injected '${key.toString()}: ${Dependency.name}' in ${instance !== null && instance !== undefined ? instance.constructor.name : null}`);
     }
 
     return instance;
   }
 
   search<T>(SearchDependency: ClassType<T>): T {
-    for (const instance of this.dependencies) {
+    for (const instance of this._dependencies) {
       if (instance instanceof SearchDependency) return instance;
     }
 
@@ -112,8 +110,6 @@ export class Container {
 
     function Injectable<D extends ClassType>(...params: ConstructorParameters<D>) {
       return (target: D, _ctx: ClassDecoratorContext) => {
-        console.log(target.name);
-
         container.registerClass(target, ...params);
       };
     }

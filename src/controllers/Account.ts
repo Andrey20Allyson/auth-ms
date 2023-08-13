@@ -8,13 +8,15 @@ export class AccountController {
   @Inject(AccountService)
   readonly service!: AccountService;
 
-  @Route({
-    path: '/create',
-    method: 'POST',
-  })
+  @Route.Post('/create')
   async createAccount(request: TypedRequest) {
-    const { body } = request.check({ body: RequestBody.createAccount });
+    const body = request.body(RequestBody.createAccount);
 
     return this.service.createAccount(body);
+  }
+
+  @Route.Get('/create-session')
+  async createSession(request: TypedRequest) {
+    
   }
 }

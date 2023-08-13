@@ -3,6 +3,7 @@ import { AccountServiceConfig } from "../config/AccountService";
 import { RequestBody } from "../controllers/Account.schemas";
 import { Database } from "../database";
 import { Inject, Injectable } from '../container';
+import {  } from 'jsonwebtoken';
 
 @Injectable()
 export class AccountService {
@@ -31,5 +32,9 @@ export class AccountService {
     });
 
     return { id: resp.user_id };
+  }
+
+  async createSession() {
+
   }
 }

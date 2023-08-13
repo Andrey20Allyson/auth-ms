@@ -5,11 +5,5 @@ export interface AccountServiceConfigData {
   saltRounds: number;
 }
 
-@Injectable({
-  saltRounds: 8
-})
-export class AccountServiceConfig extends Config<AccountServiceConfigData> {
-  constructor(data: AccountServiceConfigData) {
-    super(data);
-  }
-}
+@Injectable({ saltRounds: 8 })
+export class AccountServiceConfig extends Config<AccountServiceConfigData> { }
